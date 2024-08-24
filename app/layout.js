@@ -1,8 +1,6 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "./components/SessionWrapper";
-
-const inter = Inter({ subsets: ["latin"] });
+import NavBar from "./components/NavBar";
 
 export const metadata = {
   title: "Create Next App",
@@ -13,7 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <SessionWrapper>
-        <body className={inter.className}>{children}</body>
+        <body className="flex flex-col items-center justify-center w-full">
+          <NavBar />
+          {children}
+        </body>
       </SessionWrapper>
     </html>
   );

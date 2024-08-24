@@ -1,20 +1,9 @@
-"use client";
-import { useSession, signIn, signOut } from "next-auth/react";
-
-export default function Home() {
-  const { data: session } = useSession();
-  if (session) {
-    return (
-      <>
-        Signed in as {session.user.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    );
-  }
+function Home() {
   return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn("google")}>Sign in</button>
-    </>
+    <div className="text-white min-h-screen inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]">
+      Jazzee home
+    </div>
   );
 }
+
+export default Home;
