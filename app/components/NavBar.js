@@ -16,7 +16,7 @@ function NavBar() {
       <div className="mx-auto px-2 md:px-4 py-2 md:py-4 flex justify-between items-center">
         <motion.a
           href="/"
-          className="flex items-center font-bold text-lg"
+          className="flex items-center font-black text-2xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -85,9 +85,7 @@ function NavBar() {
             >
               FAQs
             </motion.a>
-            <motion.button
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-bold"
-            >
+            <motion.button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-bold">
               Contact Us
             </motion.button>
           </div>
