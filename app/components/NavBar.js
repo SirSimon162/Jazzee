@@ -1,10 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { motion } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
+import useAuthStore from "../../store/user-store";
 
 function NavBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const { setSession, clearSession } = useAuthStore();
+
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      setSession(session);
+    } else if (status === "unauthenticated") {
+      clearSession();
+    }
+  }, [status, session, setSession, clearSession]);
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    clearSession();
+  };
+
+  const AuthButton = ({ className }) =>
+    status === "authenticated" ? (
+      <motion.button className={className} onClick={handleSignOut}>
+        Sign Out
+      </motion.button>
+    ) : (
+      <Link href="/auth/buyer" className={className}>
+        Sign In
+      </Link>
+    );
 
   return (
     <motion.nav
@@ -24,27 +53,19 @@ function NavBar() {
           Jazzee
         </motion.a>
         <div className="hidden md:flex items-center gap-x-10 font-medium">
-          <motion.a
-            to="/"
-            className=" cursor-pointer  text-gray-900 hover:text-blue-700"
+          <Link
+            href="/"
+            className="cursor-pointer text-gray-900 hover:text-blue-700"
           >
             Home
-          </motion.a>
-          <motion.a
-            href="#about"
-            className=" text-gray-900 hover:text-blue-700"
-          >
+          </Link>
+          <Link href="#about" className="text-gray-900 hover:text-blue-700">
             About
-          </motion.a>
-          <motion.a href="#faq" className=" text-gray-900 hover:text-blue-700">
+          </Link>
+          <Link href="#faq" className="text-gray-900 hover:text-blue-700">
             FAQ
-          </motion.a>
-          <motion.a
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-semibold"
-            href="/signup"
-          >
-            Sign In
-          </motion.a>
+          </Link>
+          <AuthButton className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-semibold" />
         </div>
         <div className="md:hidden block">
           <Hamburger
@@ -55,7 +76,7 @@ function NavBar() {
           />
         </div>
         <motion.div
-          initial={{ opacity: 0, x: "-100%" }}
+          initial={{ opacity: 0, y: "-100%" }}
           animate={{
             opacity: isMobileMenuOpen ? 1 : 0,
             y: isMobileMenuOpen ? 0 : "-100%",
@@ -66,28 +87,28 @@ function NavBar() {
           } md:hidden absolute top-[62px] left-0 right-0 z-30 h-screen flex flex-col items-center bg-white`}
         >
           <div className="flex flex-col items-center gap-y-9 pt-12 font-medium">
-            <motion.a
-              to="/"
+            <Link
+              href="/"
               className="block cursor-pointer text-gray-900 hover:text-blue-700"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
-            </motion.a>
-            <motion.a
+            </Link>
+            <Link
               href="#about"
               className="block text-gray-900 hover:text-blue-700"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               About
-            </motion.a>
-            <motion.a
+            </Link>
+            <Link
               href="#faq"
               className="block text-gray-900 hover:text-blue-700"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               FAQs
-            </motion.a>
-            <motion.button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-bold">
-              Contact Us
-            </motion.button>
+            </Link>
+            <AuthButton className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-bold" />
           </div>
         </motion.div>
       </div>

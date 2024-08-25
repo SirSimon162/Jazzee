@@ -3,7 +3,7 @@ import React from "react";
 function Footer() {
   return (
     <div
-      className="flex flex-col md:flex-row w-full justify-around items-center border-t-1 border-t-gray-300 py-20 gap-5 [background:radial-gradient(225%_225%_at_20%_10%,#000_20%,#63e_100%)]"
+      className="flex flex-col md:flex-row w-full justify-around items-center border-t-1 border-t-gray-800 border-t py-20 gap-5 [background:radial-gradient(225%_225%_at_10%_10%,#000_20%,#63e_110%)]"
       id="Contact"
     >
       <div className="flex flex-col items-center sm:items-start">
