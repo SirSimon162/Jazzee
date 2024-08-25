@@ -6,7 +6,7 @@ function CTA() {
   return (
     <motion.a
       className="p-[3px] relative"
-      href="/signup"
+      href="/auth/buyer"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       initial={{ y: 30, opacity: 0 }}
