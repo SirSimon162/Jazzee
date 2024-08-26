@@ -31,7 +31,7 @@ const steps = [
 
 const Works = () => {
   return (
-    <div className="w-full mx-auto py-10 sm:py-20 px-4 bg-gradient-to-b from-indigo-100 to-blue-200 rounded-b-[20px] md:rounded-b-[100px]">
+    <div id="about" className="w-full mx-auto py-10 sm:py-20 px-4 bg-gradient-to-b from-indigo-100 to-blue-200 rounded-b-[20px] md:rounded-b-[100px]">
       <div className="max-w-4xl mx-auto">
         <motion.h2
           className="text-2xl sm:text-6xl font-bold text-center mb-8 text-black"

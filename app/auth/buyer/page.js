@@ -14,7 +14,8 @@ export default function BuyerAuthPage() {
     if (nextAuthSession) {
       setSession(nextAuthSession);
       saveUserInfo(nextAuthSession.user.name, "buyer");
-      router.push("/");
+  
+      router.push("/dashboard/buyer");
     }
   }, [nextAuthSession, setSession, saveUserInfo, router]);
 

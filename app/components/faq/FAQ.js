@@ -68,7 +68,7 @@ const FAQ = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 flex flex-col items-center justify-center py-10 sm:py-20">
+    <div id="faq" className="max-w-3xl mx-auto p-4 flex flex-col items-center justify-center py-10 sm:py-20">
       <h2 className="text-2xl sm:text-6xl font-bold mb-8 text-center max-w-2xl">
         Let's get all your questions answered, shall we?
       </h2>
