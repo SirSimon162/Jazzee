@@ -1,7 +1,6 @@
 import { MongoClient } from "mongodb";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "../auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
-import hash from "object-hash";
 
 const mongoUri = process.env.MONGO_CONNECTION_URI;
 let client;
@@ -23,40 +22,35 @@ export async function GET(req) {
   }
 
   try {
+    const email = session.user.email;
 
     // Wait for the MongoDB client to be connected
     const client = await clientPromise;
 
     // Select the database and collection
     const db = client.db("jazzee");
-    const collection = db.collection("products");
+    const collection = db.collection("users");
 
-    // Find the products associated with the sellerHash
-    const result = await collection.find({}).toArray();
+    // Find the user associated with the email
+    const user = await collection.findOne({ email });
 
-    if (result.length) {
-      return new Response(
-        JSON.stringify({ result }),
-        { status: 200 }
-      );
+    if (user) {
+      return new Response(JSON.stringify(user), { status: 200 });
     } else {
       return new Response(
-        JSON.stringify({ message: "No products found" }),
+        JSON.stringify({ message: "User not found" }),
         { status: 404 }
       );
     }
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching user:", error);
 
     // Return an error response if something goes wrong
     return new Response(
-      JSON.stringify({ message: "Failed to fetch products" }),
+      JSON.stringify({ message: "Failed to fetch user" }),
       {
         status: 500,
       }
     );
   }
 }
-
-
-// Simple get call works

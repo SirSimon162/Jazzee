@@ -29,7 +29,7 @@ export async function GET(req) {
 
     // Select the database and collection
     const db = client.db("jazzee");
-    const collection = db.collection("products");
+    const collection = db.collection("quote-schema");
 
     // Find the products associated with the sellerHash
     const result = await collection.find({}).toArray();
@@ -41,16 +41,16 @@ export async function GET(req) {
       );
     } else {
       return new Response(
-        JSON.stringify({ message: "No products found" }),
+        JSON.stringify({ message: "No schemas found" }),
         { status: 404 }
       );
     }
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching schemas:", error);
 
     // Return an error response if something goes wrong
     return new Response(
-      JSON.stringify({ message: "Failed to fetch products" }),
+      JSON.stringify({ message: "Failed to fetch schemas" }),
       {
         status: 500,
       }
