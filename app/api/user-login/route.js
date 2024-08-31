@@ -4,19 +4,19 @@ import { getServerSession } from "next-auth/next";
 
 const mongoUri = process.env.MONGO_CONNECTION_URI;
 const client = new MongoClient(mongoUri);
-await client.connect();
-
-const dbName = "jazzee";
-const collectionName = "users";
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
+  // const session = await getServerSession(authOptions);
 
-  if (!session) {
-    // res.status(401).json({ message: "You must be logged in." })
-    // return
-    return new Response(JSON.stringify({ message: "You must be logged in." }), {status: 401});
-  }
+  // if (!session) {
+  //   return new Response(JSON.stringify({ message: "You must be logged in." }), {
+  //     status: 401,
+  //   });
+  // }
+  await client.connect();
+
+  const dbName = "jazzee";
+  const collectionName = "users";
 
   const { email, name, role } = await req.json();
 
@@ -31,7 +31,7 @@ export async function POST(req) {
   const collection = database.collection(collectionName);
 
   // Check if the user already exists
-  const existingUser = await collection.findOne({ $or: [{ email }, { name }] });
+  const existingUser = await collection.findOne({email});
 
   if (existingUser) {
     // Check for role conflict
@@ -43,7 +43,14 @@ export async function POST(req) {
         { status: 409 }
       );
     }
-    return new Response(JSON.stringify({ message: "User already exists." }), {
+
+    if(existingUser.customName == null){
+      return new Response(JSON.stringify({ message: "Custom Name Remaining", code: "cname" }), {
+        status: 200,
+      });
+    }
+
+    return new Response(JSON.stringify({ message: "User already exists.", code: "success" }), {
       status: 200,
     });
   }
@@ -53,7 +60,7 @@ export async function POST(req) {
 
   if (result.acknowledged) {
     return new Response(
-      JSON.stringify({ message: "User added successfully." }),
+      JSON.stringify({ message: "User added successfully.", code: "cname" }),
       { status: 201 }
     );
   } else {
@@ -62,3 +69,22 @@ export async function POST(req) {
     });
   }
 }
+
+// Post Body
+// {
+//   "email": "",
+//   "name": "",
+//   "role": "buyer/seller"
+// }
+
+
+// Returns with 
+// {
+//   "message": "User added successfully.",
+//   "code": "cname" <---- Means Custom Name Required
+// }
+
+// {
+//   "message": "User added successfully.",
+//   "code": "success" <---- Means All set!
+// }
