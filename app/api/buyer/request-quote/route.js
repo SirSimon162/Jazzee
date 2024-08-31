@@ -72,4 +72,16 @@ export async function POST(req) {
   }
 }
 
-// Simple get call works
+// Post Payload
+// {
+//   "categoryName": "sd",
+//   "key1":  {
+//     "key": "DD",
+//     "value": "AA"
+//   },
+//   "key2": {
+//     "key": "KK",
+//     "value": "VV"
+//   },
+//   "price": "100"
+// }
