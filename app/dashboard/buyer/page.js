@@ -87,7 +87,7 @@ const BuyerDashboard = () => {
         setOtpVerified(false);
         setOtp("");
       }, 3000);
-      router.push("/marketplace");
+      // router.push("/marketplace");
     }
   };
 
