@@ -17,7 +17,14 @@ const Page = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [products, setProducts] = useState([]);
   const [schema, setSchema] = useState({});
+
+  const [value1, setValue1] = useState({});
+  const [value2, setValue2] = useState({});
+  const [value3, setValue3] = useState({});
+
   const requiredKeys = ["req1", "req2", "req3"];
+
+  const [quoteStatus, setQuoteStatus] = useState('null');
 
   async function getProviders(id) {
     const productsRes = await fetch("/api/buyer/get-products");
@@ -52,6 +59,39 @@ const Page = () => {
     console.log(requiredSchema);
   }
 
+  async function requestQuote(payload){
+    setQuoteStatus('loading');
+    let callPayload = {}
+    let start = 1;
+    Object.entries(payload).map(([key, value]) => {
+      if(key != "Price"){
+        if(start == 1){
+          callPayload['key1'] = {key: key, value: value}
+          start++
+        }
+        if(start == 2){
+          callPayload['key2'] = {key: key, value: value};
+        }
+      }
+    });
+    callPayload['price'] = payload.Price;
+    callPayload['categoryName'] = schema.categoryName;
+    console.log(callPayload);
+    
+
+    const response = await fetch("/api/buyer/request-quote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(callPayload),
+    });
+
+    if(response.ok){
+      setQuoteStatus('successful');
+    }
+  }
+
   useEffect(() => {
     getProviders(id);
     getQuoteSchema(id);
@@ -81,7 +121,7 @@ const Page = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-2xl md:text-4xl font-bold text-white mb-0 capitalize"
       >
-        Hey
+        {schema['categoryName']}
       </motion.h1>
       <motion.p
         initial={{ y: -100, opacity: 0 }}
@@ -89,7 +129,7 @@ const Page = () => {
         transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
         className="text-gray-400 mb-6"
       >
-        Hey
+        {schema['categorySlug']}
       </motion.p>
 
       <motion.div
@@ -101,7 +141,15 @@ const Page = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handlePlaceOrder();
+            const formData = new FormData(e.target); // Get form data
+            const data = {}; 
+        
+            formData.forEach((value, key) => {
+              data[key] = value;             });
+        
+            console.log({ form: data }); 
+            requestQuote(data);
+            // handlePlaceOrder();
           }}
           className="bg-[#0e0e10] p-6 rounded-lg shadow-lg w-full"
         >
@@ -114,9 +162,10 @@ const Page = () => {
               if (requiredKeys.includes(key)) {
                 return (
                   <div key={key} className="w-full">
-                    <label className="block text-sm mb-2 w-full">{field}</label>
+                    <label className="block text-sm mb-2 w-full text-gray-300">{field}</label>
                     <input
                       type="text"
+                      name = {field}
                       placeholder={field}
                       className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full text-white"
                     />
@@ -128,8 +177,9 @@ const Page = () => {
             })}
           </div>
           <motion.button
-            type="submit"
+            // type="submit"
             whileTap={{ scale: 0.95 }}
+
             className="mt-4 p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full"
           >
             Request Quote
