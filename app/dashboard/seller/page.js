@@ -78,12 +78,13 @@ const SellerDashboard = () => {
 
   const getConfirmOrders = async () => {
     try {
-      const response = await fetch("/api/seller/get-confirm-oders");
+      const response = await fetch("/api/seller/get-confirm-orders");
       if (!response.ok) {
         throw new Error("Failed to fetch confirm orders");
       }
       const data = await response.json();
       setConfirm(data.result || []);
+      console.log({ confirm });
     } catch (err) {
       console.error("Error fetching confirmed orders:", err);
     }
@@ -312,10 +313,10 @@ const SellerDashboard = () => {
                 {order.categoryName}
               </h3>
               <p className="text-lg text-gray-400 mb-2">
-                <strong>Price:</strong> {order.price}
+                <strong>Final Price:</strong> {order.finalPrice}
               </p>
               <p className="text-lg text-gray-400 mb-2">
-                <strong>Confirmed By:</strong> {order.sellerCustomName}
+                <strong>Product:</strong> {order.finalProductName}
               </p>
             </motion.div>
           ))}
