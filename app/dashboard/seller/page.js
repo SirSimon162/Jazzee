@@ -42,15 +42,14 @@ const SellerDashboard = () => {
   const [productName, setProductName] = useState("");
 
   useEffect(() => {
-  for (let i = 0; i < products.length; i++) {
-    let currentProduct = products[i];
-    if (currentProduct['categoryName'] === categoryName) {
-      setProductName(currentProduct['productName']);
-      break; // Exit the loop once a match is found
+    for (let i = 0; i < products.length; i++) {
+      let currentProduct = products[i];
+      if (currentProduct["categoryName"] === categoryName) {
+        setProductName(currentProduct["productName"]);
+        break; // Exit the loop once a match is found
+      }
     }
-  }
-}, [categoryName, products]);
-  
+  }, [categoryName, products]);
 
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
@@ -97,8 +96,6 @@ const SellerDashboard = () => {
       console.error("Error fetching products:", err);
     }
   };
-
-
 
   useEffect(() => {
     fetchSchema();
@@ -236,7 +233,7 @@ const SellerDashboard = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Your Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.length === 0 && <p>No requested quotes.</p>}
+          {products.length === 0 && <p>No Products.</p>}
           {products.map((product) => (
             <motion.div
               key={product._id}
@@ -274,7 +271,7 @@ const SellerDashboard = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Requested Quotes</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {openBids.length === 0 && <p>No requested quotes.</p>}
+          {openBids.length === 0 && <p>No Pending Requests.</p>}
           {openBids.map((product) => (
             <motion.div
               key={product._id}
@@ -381,9 +378,9 @@ const SellerDashboard = () => {
                       </label>
                       <input
                         type={field.valueType === "Number" ? "number" : "text"}
-                        placeholder={field.placeholder}
+                        placeholder={field.placeholder + field.prefix}
                         onChange={(e) =>
-                          handleFieldChange(field.keyName, e.target.value)
+                          handleFieldChange(field.keyName, e.target.value + field.prefix)
                         }
                         className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full"
                       />
