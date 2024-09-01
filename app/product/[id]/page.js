@@ -15,18 +15,9 @@ const Page = () => {
     selectedProviders: [],
   });
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [providers, setProviders] = useState([]);
+  const [products, setProducts] = useState([]);
   const [schema, setSchema] = useState({});
-
-  const {
-    products,
-    setSelectedProduct,
-    selectedProduct: product,
-  } = useProductStore((state) => ({
-    products: state.products,
-    setSelectedProduct: state.setSelectedProduct,
-    selectedProduct: state.selectedProduct,
-  }));
+  const requiredKeys = ["req1", "req2", "req3"];
 
   async function getProviders(id) {
     const productsRes = await fetch("/api/buyer/get-products");
@@ -39,31 +30,32 @@ const Page = () => {
         providersList.push(currentProduct);
       }
     }
+    setProducts(providersList);
     console.log(providersList);
     console.log(providersList.length);
   }
+  console.log({ products });
   async function getQuoteSchema(id) {
     const productsRes = await fetch("/api/buyer/get-quote-schema");
     const quoteSchema = await productsRes.json();
-   
+
     const schemaArray = quoteSchema.result;
     let requiredSchema = {};
-    
+
     for (let i = 0; i < schemaArray.length; i++) {
       let currentSchema = schemaArray[i];
-      if( currentSchema.categorySlug == id){
+      if (currentSchema.categorySlug == id) {
         requiredSchema = currentSchema;
       }
     }
+    setSchema(requiredSchema);
     console.log(requiredSchema);
   }
 
   useEffect(() => {
-    const selected = products.find((product) => product.id === id);
-    setSelectedProduct(selected);
     getProviders(id);
     getQuoteSchema(id);
-  }, [id, products, setSelectedProduct]);
+  }, [id]);
 
   const handlePlaceOrder = () => {
     useProductStore.getState().setRequestedOrder(product, quoteDetails);
@@ -73,26 +65,7 @@ const Page = () => {
     }, 3000);
   };
 
-  const handleCheckboxChange = (providerName) => {
-    setQuoteDetails((prevDetails) => {
-      const isSelected = prevDetails.selectedProviders.includes(providerName);
-      if (isSelected) {
-        return {
-          ...prevDetails,
-          selectedProviders: prevDetails.selectedProviders.filter(
-            (name) => name !== providerName
-          ),
-        };
-      } else {
-        return {
-          ...prevDetails,
-          selectedProviders: [...prevDetails.selectedProviders, providerName],
-        };
-      }
-    });
-  };
-
-  if (!product) {
+  if (!products) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-gray-900 p-6">
         <p className="text-white text-lg">Loading...</p>
@@ -108,7 +81,7 @@ const Page = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-2xl md:text-4xl font-bold text-white mb-0 capitalize"
       >
-        {product.name}
+        Hey
       </motion.h1>
       <motion.p
         initial={{ y: -100, opacity: 0 }}
@@ -116,7 +89,7 @@ const Page = () => {
         transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
         className="text-gray-400 mb-6"
       >
-        {product.description}
+        Hey
       </motion.p>
 
       <motion.div
@@ -133,81 +106,26 @@ const Page = () => {
           className="bg-[#0e0e10] p-6 rounded-lg shadow-lg w-full"
         >
           <div>
-            <label className="block text-gray-300">Providers</label>
-            <div className="flex flex-wrap gap-4">
-              {product.providers.map((provider, index) => (
-                <div key={index} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={quoteDetails.selectedProviders.includes(
-                      provider.name
-                    )}
-                    onChange={() => handleCheckboxChange(provider.name)}
-                    className="w-5 h-5 text-blue-600 bg-transparent border-blue-600"
-                  />
-                  <label className="ml-2 text-gray-300">{provider.name}</label>
-                </div>
-              ))}
-            </div>
+            <label className="text-lg block text-gray-300">Providers</label>
           </div>
           <div className="mt-4">
-            <label className="block text-gray-300">Price</label>
-            <input
-              type="text"
-              value={quoteDetails.price}
-              onChange={(e) =>
-                setQuoteDetails({
-                  ...quoteDetails,
-                  price: e.target.value,
-                })
+            {Object.keys(schema).map((key) => {
+              const field = schema[key];
+              if (requiredKeys.includes(key)) {
+                return (
+                  <div key={key} className="w-full">
+                    <label className="block text-sm mb-2 w-full">{field}</label>
+                    <input
+                      type="text"
+                      placeholder={field}
+                      className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full text-white"
+                    />
+                  </div>
+                );
               }
-              className="w-full p-2 border border-gray-300 focus:outline-none bg-transparent border-t-0 border-x-0 border-b border-b-1 border-b-blue-700 text-gray-300"
-              required
-            />
-          </div>
-          <div className="mt-4">
-            <label className="block text-gray-300">Gigs</label>
-            <input
-              type="text"
-              value={quoteDetails.gigs}
-              onChange={(e) =>
-                setQuoteDetails({
-                  ...quoteDetails,
-                  gigs: e.target.value,
-                })
-              }
-              className="w-full p-2 border border-gray-300 focus:outline-none bg-transparent border-t-0 border-x-0 border-b border-b-1 border-b-blue-700 text-gray-300"
-              required
-            />
-          </div>
-          <div className="mt-4">
-            <label className="block text-gray-300">Concurrency</label>
-            <input
-              type="text"
-              value={quoteDetails.concurrency}
-              onChange={(e) =>
-                setQuoteDetails({
-                  ...quoteDetails,
-                  concurrency: e.target.value,
-                })
-              }
-              className="w-full p-2 border border-gray-300 focus:outline-none bg-transparent border-t-0 border-x-0 border-b border-b-1 border-b-blue-700 text-gray-300"
-              required
-            />
-          </div>
-          <div className="mt-4 flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={quoteDetails.urgent}
-              onChange={(e) =>
-                setQuoteDetails({
-                  ...quoteDetails,
-                  urgent: e.target.checked,
-                })
-              }
-              className="w-5 h-5 text-blue-600 bg-transparent border-blue-600"
-            />
-            <label className="text-gray-300">Immediately needed</label>
+
+              return null;
+            })}
           </div>
           <motion.button
             type="submit"
@@ -220,7 +138,7 @@ const Page = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
-        {product.providers.map((provider, index) => (
+        {products.map((provider, index) => (
           <motion.div
             key={index}
             whileHover={{ scale: 1.02 }}
