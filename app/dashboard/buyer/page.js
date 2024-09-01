@@ -7,17 +7,18 @@ import useAuthStore from "@/store/user-store";
 
 const BuyerDashboard = () => {
   const [orderBids, setOrderBids] = useState([]);
+  const [confirm, setConfirm] = useState([]);
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
   }));
 
-  const { requestedOrders, confirmedOrders, confirmOrder } = useProductStore(
-    (state) => ({
-      requestedOrders: state.requestedOrders,
-      confirmedOrders: state.confirmedOrders,
-      confirmOrder: state.confirmOrder,
-    })
-  );
+  // const { requestedOrders, confirmedOrders, confirmOrder } = useProductStore(
+  //   (state) => ({
+  //     requestedOrders: state.requestedOrders,
+  //     confirmedOrders: state.confirmedOrders,
+  //     confirmOrder: state.confirmOrder,
+  //   })
+  // );
 
   const getOrdersBids = async () => {
     try {
@@ -33,13 +34,28 @@ const BuyerDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    getOrdersBids();
-  }, []);
+  const getConfirmOrders = async () => {
+    try {
+      const response = await fetch("/api/buyer/get-confirm-orders");
+      if (!response.ok) {
+        throw new Error("Failed to fetch confirm order");
+      }
+      const data = await response.json();
+      setConfirm(data);
+      console.log("confirms", data);
+    } catch (err) {
+      console.error("Error fetching order bids:", err);
+    }
+  };
 
   useEffect(() => {
-    console.log("Requested Orders:", requestedOrders);
-  }, [requestedOrders]);
+    getOrdersBids();
+    getConfirmOrders();
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("Requested Orders:", requestedOrders);
+  // }, [requestedOrders]);
 
   const [confirmingOrder, setConfirmingOrder] = useState(null);
   const [otpVerified, setOtpVerified] = useState(false);
@@ -198,8 +214,8 @@ const BuyerDashboard = () => {
         >
           <h2 className="text-3xl font-semibold mb-4">Confirmed Orders</h2>
           <div className="flex-1 overflow-y-auto">
-            {confirmedOrders.length === 0 && <p>No confirmed orders.</p>}
-            {confirmedOrders.map((product) => renderOrderCard(product, true))}
+            {confirm.length === 0 && <p>No confirmed orders.</p>}
+            {confirm.map((product) => renderOrderCard(product, true))}
           </div>
         </motion.div>
       </div>
