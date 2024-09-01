@@ -6,7 +6,7 @@ import useProductStore from "@/store/product-store";
 import useAuthStore from "@/store/user-store";
 
 const BuyerDashboard = () => {
-  const [orderBids, setOrderBids] = useState([])
+  const [orderBids, setOrderBids] = useState([]);
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
   }));
@@ -18,24 +18,24 @@ const BuyerDashboard = () => {
       confirmOrder: state.confirmOrder,
     })
   );
-  
+
   const getOrdersBids = async () => {
     try {
       const response = await fetch("/api/buyer/get-order-bids");
       if (!response.ok) {
-        throw new Error("Failed to fetch products");
+        throw new Error("Failed to fetch order bids");
       }
       const data = await response.json();
-      setOrderBids(data || []);
+      setOrderBids(data.result || []);
       console.log("bids", data);
     } catch (err) {
-      console.error("Error fetching products:", err);
+      console.error("Error fetching order bids:", err);
     }
   };
 
-  useEffect(()=>{
-    getOrdersBids()
-  })
+  useEffect(() => {
+    getOrdersBids();
+  }, []);
   useEffect(() => {
     console.log("Requested Orders:", requestedOrders);
   }, [requestedOrders]);
@@ -60,54 +60,57 @@ const BuyerDashboard = () => {
     }
   };
 
-  const renderProviderDetails = (product) => {
-    return product.providers.map((provider) => (
-      <div key={provider.name} className="mb-2">
-        <p>{provider.name}</p>
-        <p>{provider.price}</p>
-      </div>
-    ));
-  };
-
-  const renderOrderCard = (product, isConfirmed) => {
-    const lowestPriceProvider = product.providers.reduce((lowest, current) =>
-      parseFloat(current.price.replace("$", "")) <
-      parseFloat(lowest.price.replace("$", ""))
-        ? current
-        : lowest
-    );
+  const ProductDetails = ({ details }) => {
+    const notDisplayedKeys = [
+      "_id",
+      "sellerCustomName",
+      "categorySlug",
+      "categoryName",
+      "productName",
+      "sellerCode",
+    ];
 
     return (
+      <div className="my-4">
+        {Object.entries(details).map(([key, value]) => {
+          if (notDisplayedKeys.some((item) => item === key)) {
+            return null;
+          }
+          return (
+            <p key={key} className="text-md text-gray-200 mb-0">
+              <strong>{key}:</strong> {value}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderOrderBids = () => {
+    return orderBids.map((order) => (
       <motion.div
-        key={product.id}
+        key={order._id}
         className="p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
       >
-        <h3 className="text-2xl font-semibold mb-4">{product.name}</h3>
-        <div className="flex flex-col lg:flex-row gap-2 lg:gap-8">
-          {renderProviderDetails(product)}
+        <h3 className="text-2xl font-semibold mb-4">{order.categoryName}</h3>
+        <ProductDetails details={order.details} />
+        <div>
+          {order.bids.map((bid, index) => {
+            const providerId = Object.keys(bid)[0];
+            const providerDetails = bid[providerId];
+            return (
+              <div key={index} className="mb-2">
+                <p>Provider: {providerDetails.productName}</p>
+                <p>Price: {providerDetails.price}</p>
+              </div>
+            );
+          })}
         </div>
-        <p className="text-lg font-semibold text-yellow-400 mt-4">
-          Entered Price: {product.quoteDetails.initialPrice}
-        </p>
-        <p className="text-lg font-semibold text-green-400 mt-2">
-          Lowest Quote: {lowestPriceProvider.price} by{" "}
-          {lowestPriceProvider.name}
-        </p>
-
-        {!isConfirmed && (
-          <motion.button
-            onClick={() => handleConfirmOrder(product.id)}
-            className="p-2 mt-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            whileHover={{ scale: 1.1 }}
-          >
-            Confirm Order
-          </motion.button>
-        )}
       </motion.div>
-    );
+    ));
   };
 
   return (
@@ -127,10 +130,10 @@ const BuyerDashboard = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-3xl font-semibold mb-4">Requested Quotes</h2>
+          <h2 className="text-3xl font-semibold mb-4">Received Quotes</h2>
           <div className="flex-1 overflow-y-auto">
-            {requestedOrders.length === 0 && <p>No requested quotes.</p>}
-            {requestedOrders.map((product) => renderOrderCard(product, false))}
+            {orderBids.length === 0 && <p>No received quotes.</p>}
+            {renderOrderBids()}
           </div>
         </motion.div>
 
