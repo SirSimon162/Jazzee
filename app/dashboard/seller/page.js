@@ -92,10 +92,8 @@ const SellerDashboard = () => {
   const handleAddProduct = () => {
     setShowAddProductModal(true);
   };
-
-  const handleConfirmOrder = (productId) => {
-    setModalOpen(true);
-    setConfirmingOrder(productId);
+  const handleConfirmOrder = (product) => {
+    setConfirmingOrder(true);
   };
 
   const handleSaveNewProduct = async () => {
@@ -152,6 +150,33 @@ const SellerDashboard = () => {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const handleInputPrice = async () => {
+    try {
+      const response = await fetch("/api/seller/place-bid", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _id: confirmingOrder._id,
+          price: priceInput,
+          productName: confirmingOrder.productName,
+        }),
+      });
+
+      if (response.ok) {
+        setConfirmingOrder(null);
+        setPriceInput("");
+        getOpenBids();
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to submit price:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error submitting price:", error);
+    }
   };
 
   const ProductDetails = ({ details }) => {
@@ -247,7 +272,7 @@ const SellerDashboard = () => {
               </p>
               <ProductDetails details={product.details} />
               <motion.button
-                onClick={() => handleConfirmOrder(product.id)}
+                onClick={() => handleConfirmOrder()}
                 className="p-2 mt-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 whileHover={{ scale: 1.1 }}
               >
@@ -356,43 +381,6 @@ const SellerDashboard = () => {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {confirmingOrder && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg flex flex-col text-white"
-            >
-              <h2 className="text-2xl font-semibold mb-4">
-                Enter Price for Buyer
-              </h2>
-              <input
-                type="text"
-                placeholder="Enter Price"
-                value={priceInput}
-                onChange={(e) => setPriceInput(e.target.value)}
-                className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
-              />
-              <div className="flex justify-end">
-                <motion.button
-                  onClick={handleInputPrice}
-                  className="p-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  Submit Price
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
         {isProductListed && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -418,6 +406,54 @@ const SellerDashboard = () => {
               >
                 Close
               </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {confirmingOrder && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg"
+              initial={{ y: "-50vh" }}
+              animate={{ y: 0 }}
+              exit={{ y: "50vh" }}
+            >
+              <h2 className="text-2xl font-bold mb-4">
+                Confirm Order for {confirmingOrder.productName}
+              </h2>
+              <ProductDetails details={confirmingOrder} />
+              <div className="mb-4">
+                <label className="block text-lg font-semibold mb-2">
+                  Enter Price
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-2 bg-gray-700 text-white rounded-md"
+                  placeholder="Price"
+                  value={priceInput}
+                  onChange={(e) => setPriceInput(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
+                onClick={handleInputPrice}
+              >
+                Submit Price
+              </button>
+              <button
+                type="button"
+                className="w-full mt-4 bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
+                onClick={() => setConfirmingOrder(null)}
+              >
+                Close
+              </button>
             </motion.div>
           </motion.div>
         )}
