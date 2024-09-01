@@ -61,25 +61,24 @@ const BuyerDashboard = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
 
-  const handleConfirmOrder = async (productId, lowestProvider) => {
+  const handleConfirmOrder = async (productId, lowestProvider, decision) => {
     setConfirmingOrder(productId);
-    confirmOrder(lowestProvider); 
+    confirmOrder(lowestProvider);
     let updateObject = {};
-    updateObject['_id'] = productId;
-    let sellerCode = Object.keys(lowestProvider)[0]; 
-    updateObject['sellerCode'] = sellerCode;
-    updateObject['price'] = lowestProvider[sellerCode]['price'];
-    updateObject['productName'] = lowestProvider[sellerCode]['productName'];
-    updateObject['decision'] = "accept";
-    
-    
-    const res = await fetch('/api/buyer/update-order', {
+    updateObject["_id"] = productId;
+    let sellerCode = Object.keys(lowestProvider)[0];
+    updateObject["sellerCode"] = sellerCode;
+    updateObject["price"] = lowestProvider[sellerCode]["price"];
+    updateObject["productName"] = lowestProvider[sellerCode]["productName"];
+    updateObject["decision"] = decision;
+
+    const res = await fetch("/api/buyer/update-order", {
       method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateObject),
-    })
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateObject),
+    });
   };
 
   const handleVerifyOtp = () => {
@@ -90,6 +89,7 @@ const BuyerDashboard = () => {
         setOtpVerified(false);
         setOtp("");
       }, 3000);
+      router.push("/marketplace");
     }
   };
 
@@ -131,7 +131,7 @@ const BuyerDashboard = () => {
         { price: Infinity, provider: null }
       );
       console.log("Lowest bid provider details:", lowestBid);
-  
+
       return (
         <motion.div
           key={order._id}
@@ -159,11 +159,11 @@ const BuyerDashboard = () => {
               Lowest Price: ${lowestBid.price} USD
             </p>
           </div>
-          <div className="flex items-start justify-start gap-2 mt-4">
+          <div className="flex flex-col sm:flex-row items-start justify-start gap-2 mt-4">
             <button
               className="py-2 px-4 text-white bg-blue-500 hover:bg-blue-700 rounded-md"
               onClick={() => {
-                handleConfirmOrder(order._id, lowestBid.provider)
+                handleConfirmOrder(order._id, lowestBid.provider, "accept");
                 // console.log({onclickObject: {
                 //   _id: order._id,
                 //   provider : lowestBid.provider
@@ -172,7 +172,16 @@ const BuyerDashboard = () => {
             >
               Accept Lowest Bid
             </button>
-            <button className="py-2 px-4 text-white bg-red-500 hover:bg-red-700 rounded-md">
+            <button
+              className="py-2 px-4 text-white bg-red-500 hover:bg-red-700 rounded-md"
+              onClick={() => {
+                handleConfirmOrder(order._id, lowestBid.provider, "reject");
+                // console.log({onclickObject: {
+                //   _id: order._id,
+                //   provider : lowestBid.provider
+                // }})
+              }}
+            >
               Reject
             </button>
           </div>
@@ -180,7 +189,6 @@ const BuyerDashboard = () => {
       );
     });
   };
-  
 
   return (
     <div className="min-h-screen w-full pt-32 pb-20 px-6 bg-gray-900 text-white bg-[radial-gradient(circle_900px_at_50%_600px,#6533ee78,transparent)]">
