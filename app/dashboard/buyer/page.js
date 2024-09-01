@@ -98,7 +98,8 @@ const BuyerDashboard = () => {
         },
         { price: Infinity, provider: null }
       );
-
+      console.log("Lowest bid provider details:", lowestBid);
+  
       return (
         <motion.div
           key={order._id}
@@ -141,6 +142,7 @@ const BuyerDashboard = () => {
       );
     });
   };
+  
 
   return (
     <div className="min-h-screen w-full pt-32 pb-20 px-6 bg-gray-900 text-white bg-[radial-gradient(circle_900px_at_50%_600px,#6533ee78,transparent)]">
