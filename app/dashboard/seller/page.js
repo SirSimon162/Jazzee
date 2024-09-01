@@ -236,7 +236,7 @@ const SellerDashboard = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Your Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.length === 0 && <p>No requested quotes.</p>}
+          {products.length === 0 && <p>No Products.</p>}
           {products.map((product) => (
             <motion.div
               key={product._id}
@@ -274,7 +274,7 @@ const SellerDashboard = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Requested Quotes</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {openBids.length === 0 && <p>No requested quotes.</p>}
+          {openBids.length === 0 && <p>No Pending Requests.</p>}
           {openBids.map((product) => (
             <motion.div
               key={product._id}
