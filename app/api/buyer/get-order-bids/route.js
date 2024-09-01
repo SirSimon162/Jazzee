@@ -39,10 +39,12 @@ export async function GET(req) {
     // Find the products associated with the sellerHash
     const result = await collection.find({
       customerCode: customerCode,
+      orderStatus: "bidded",
       $and: [
         { bids: { $exists: true } },
         { bids: { $ne: [] } }
       ]
+
     }).toArray();
 
     if (result.length) {

@@ -22,11 +22,13 @@ export async function POST(req) {
     });
   }
 
-  let { _id, price, productName } = await req.json();
+  let { _id, price, productName, decision } = await req.json();
 
-  if (!_id || !price || !productName) {
+  if (!_id || !price || !productName || !decision) {
     return new Response(
-      JSON.stringify({ message: "Order ID, price, productName are required." })
+      JSON.stringify({
+        message: "Order ID, price, productName, Decision are required.",
+      })
     );
   }
 
@@ -43,26 +45,52 @@ export async function POST(req) {
 
     const objectId = new ObjectId(_id);
 
-    let result = await collection.updateOne(
-      { _id: objectId }, // Use the ObjectId in the query
-      {
-        $set: {
-          orderStatus: "successful",
-          sellerCode: sellerCode,
-          finalPrice: price,
-          finalProductName: productName,
-        },
+    let result;
 
-        $push: {
-          bids: {
-            [sellerCode]: {
-              price: price,
-              productName: productName,
-            },
+    if (decision == "accept") {
+      result = await collection.updateOne(
+        { _id: objectId }, // Use the ObjectId in the query
+        {
+          $set: {
+            orderStatus: "successful",
+            sellerCode: sellerCode,
+            finalPrice: price,
+            finalProductName: productName,
           },
-        },
-      }
-    );
+
+          // $push: {
+          //   bids: {
+          //     [sellerCode]: {
+          //       price: price,
+          //       productName: productName,
+          //     },
+          //   },
+          // },
+        }
+      );
+    }
+    else if(decision == "reject"){
+      result = await collection.updateOne(
+        { _id: objectId }, // Use the ObjectId in the query
+        {
+          $set: {
+            orderStatus: "failed",
+            // sellerCode: sellerCode,
+            // finalPrice: price,
+            // finalProductName: productName,
+          },
+
+          // $push: {
+          //   bids: {
+          //     [sellerCode]: {
+          //       price: price,
+          //       productName: productName,
+          //     },
+          //   },
+          // },
+        }
+      );
+    }
 
     if (result.matchedCount === 0) {
       return new Response(JSON.stringify({ message: "Order not found." }), {
