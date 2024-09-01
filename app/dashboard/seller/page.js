@@ -236,7 +236,7 @@ const SellerDashboard = () => {
             </motion.div>
           ))}
           <motion.button
-            className="p-6 bg-blue-600 text-white rounded-lg shadow-lg mb-4 flex items-center justify-center hover:bg-blue-700 transition-colors"
+            className="p-6 bg-gray-800 text-white rounded-lg shadow-lg mb-4 flex items-center justify-center hover:bg-blue-900 transition-colors border border-dashed border-blue-500"
             onClick={handleAddProduct}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -442,7 +442,7 @@ const SellerDashboard = () => {
               </div>
               <button
                 type="button"
-                className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700"
+                className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
                 onClick={handleInputPrice}
               >
                 Submit Price
