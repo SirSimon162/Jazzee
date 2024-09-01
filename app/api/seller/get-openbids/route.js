@@ -48,11 +48,26 @@ export async function GET(req) {
       sellerProductCategories.has(order.categoryName)
     );
 
+    let finalFilteredOrders = [];
+    for(let i = 0 ; i < filteredOrders.length ; i++){
+      let currentOrder = filteredOrders[i];
+      let bids = currentOrder['bids'];
+      let bidsArray = bids.map((key) => {
+        return Object.keys(key)[0];
+      })
+
+      let containsSellerHash = bidsArray.includes(sellerHash);
+      if(!containsSellerHash){
+        finalFilteredOrders.push(currentOrder);
+      }
+      // console.log(bidsArray);
+    }
+
     // console.log(filteredOrders);
 
     return new Response(
       JSON.stringify({
-        filteredOrders,
+        filteredOrders: finalFilteredOrders,
         sellerProducts,
       }),
       { status: 200 }
