@@ -45,9 +45,25 @@ const BuyerDashboard = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
 
-  const handleConfirmOrder = (productId, lowestProvider) => {
+  const handleConfirmOrder = async (productId, lowestProvider) => {
     setConfirmingOrder(productId);
-    confirmOrder(lowestProvider); // Automatically confirm the lowest bid
+    confirmOrder(lowestProvider); 
+    let updateObject = {};
+    updateObject['_id'] = productId;
+    let sellerCode = Object.keys(lowestProvider)[0]; 
+    updateObject['sellerCode'] = sellerCode;
+    updateObject['price'] = lowestProvider[sellerCode]['price'];
+    updateObject['productName'] = lowestProvider[sellerCode]['productName'];
+    updateObject['decision'] = "accept";
+    
+    
+    const res = await fetch('/api/buyer/update-order', {
+      method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateObject),
+    })
   };
 
   const handleVerifyOtp = () => {
@@ -130,7 +146,13 @@ const BuyerDashboard = () => {
           <div className="flex items-start justify-start gap-2 mt-4">
             <button
               className="py-2 px-4 text-white bg-blue-500 hover:bg-blue-700 rounded-md"
-              onClick={() => handleConfirmOrder(order._id, lowestBid.provider)}
+              onClick={() => {
+                handleConfirmOrder(order._id, lowestBid.provider)
+                // console.log({onclickObject: {
+                //   _id: order._id,
+                //   provider : lowestBid.provider
+                // }})
+              }}
             >
               Accept Lowest Bid
             </button>

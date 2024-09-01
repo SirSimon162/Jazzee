@@ -22,9 +22,9 @@ export async function POST(req) {
     });
   }
 
-  let { _id, price, productName, decision } = await req.json();
+  let { _id, price, productName, sellerCode, decision } = await req.json();
 
-  if (!_id || !price || !productName || !decision) {
+  if (!_id || !price || !productName || !sellerCode || !decision) {
     return new Response(
       JSON.stringify({
         message: "Order ID, price, productName, Decision are required.",
@@ -33,8 +33,8 @@ export async function POST(req) {
   }
 
   try {
-    let sellerEmail = session.user.email;
-    let sellerCode = hash(sellerEmail);
+    // let sellerEmail = session.user.email;
+    // let sellerCode = hash(sellerEmail);
 
     // let userDetails = await collection.findOne({ email: sellerEmail });
     // console.log(userDetails);
@@ -123,3 +123,4 @@ export async function POST(req) {
 //     price: "USD 1000"
 //     productName: "Random Product",
 //   };
+//  _id, price, productName, sellerCode, decision 
