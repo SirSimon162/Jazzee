@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Jazzee Marketplace
 
-## Getting Started
+## Assumptions
 
-First, run the development server:
+1. **Product Similarity**: We assume that all products within a specific category are very similar or serve as direct alternatives to one another. This allows for a straightforward comparison during the auction process.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Price Optimization**: The auction process optimizes directly for pricing, assuming that other requirements and features can be fulfilled by all the selected vendors.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Single Bidding Event**: For simplicity, we assume that only one bidding event is sufficient, and there is no possibility for rebidding or renegotiation.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Video Link
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Watch the demonstration of the Jazzee Marketplace [here](https://youtube.com).
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+1. **Curated SaaS Product List**: The platform provides a curated list of SaaS products, categorized and easily accessible for buyers. This list is derived from the vendors' official pricing pages.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+2. **Reverse Dutch Auction Simulation**: Once the products are selected, the marketplace simulates a reverse Dutch auction, where vendors submit their best price quotes based on the buyer's budget and requirements.
 
-## Deploy on Vercel
+3. **Price Comparison**: The platform presents the best quotes received from the vendors, allowing the buyer to easily compare and make an informed purchasing decision.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Simplified Purchase Process**: The best price offer is displayed to the buyer, who can then proceed with the purchase directly through the marketplace, streamlining the procurement process.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Credits
+
+### This project was made by **Anushrey Jain** and **Anmol Pattnayak**.
