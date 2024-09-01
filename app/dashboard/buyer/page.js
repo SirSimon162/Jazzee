@@ -6,6 +6,7 @@ import useProductStore from "@/store/product-store";
 import useAuthStore from "@/store/user-store";
 
 const BuyerDashboard = () => {
+  const [orderBids, setOrderBids] = useState([])
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
   }));
@@ -17,7 +18,24 @@ const BuyerDashboard = () => {
       confirmOrder: state.confirmOrder,
     })
   );
+  
+  const getOrdersBids = async () => {
+    try {
+      const response = await fetch("/api/buyer/get-order-bids");
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+      const data = await response.json();
+      setOrderBids(data || []);
+      console.log("bids", data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  };
 
+  useEffect(()=>{
+    getOrdersBids()
+  })
   useEffect(() => {
     console.log("Requested Orders:", requestedOrders);
   }, [requestedOrders]);

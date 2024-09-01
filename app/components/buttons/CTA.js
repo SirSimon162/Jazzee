@@ -14,7 +14,7 @@ function CTA() {
     >
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg" />
       <div className="px-8 py-2 sm:px-16 sm:py-4 bg-black rounded-[6px] relative group transition duration-200 text-white hover:bg-transparent font-bold text-md sm:text-lg">
-        Start Your Auction Now!
+        Start Exploring Now!
       </div>
     </motion.a>
   );
