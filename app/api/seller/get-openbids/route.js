@@ -40,18 +40,23 @@ export async function GET(req) {
       .find({ sellerCode: sellerHash })
       .toArray();
 
-      const sellerProductCategories = new Set(sellerProducts.map(product => product.categoryName));
+    const sellerProductCategories = new Set(
+      sellerProducts.map((product) => product.categoryName)
+    );
 
-      const filteredOrders = openOrders.filter(order => 
-          sellerProductCategories.has(order.categoryName)
-      );
-      
-      // console.log(filteredOrders);
+    const filteredOrders = openOrders.filter((order) =>
+      sellerProductCategories.has(order.categoryName)
+    );
 
-    return new Response(JSON.stringify({
-      filteredOrders,
-      sellerProducts
-    }), { status: 200 });
+    // console.log(filteredOrders);
+
+    return new Response(
+      JSON.stringify({
+        filteredOrders,
+        sellerProducts,
+      }),
+      { status: 200 }
+    );
 
     // return new Response(JSON.stringify(orderObject));
   } catch (error) {
@@ -63,17 +68,3 @@ export async function GET(req) {
     });
   }
 }
-
-// Post Payload
-// {
-//   "categoryName": "sd",
-//   "key1":  {
-//     "key": "DD",
-//     "value": "AA"
-//   },
-//   "key2": {
-//     "key": "KK",
-//     "value": "VV"
-//   },
-//   "price": "100"
-// }
