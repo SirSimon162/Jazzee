@@ -38,13 +38,12 @@ const BuyerDashboard = () => {
     try {
       const response = await fetch("/api/buyer/get-confirm-orders");
       if (!response.ok) {
-        throw new Error("Failed to fetch confirm order");
+        throw new Error("Failed to fetch confirm orders");
       }
       const data = await response.json();
-      setConfirm(data);
-      console.log("confirms", data);
+      setConfirm(data.result || []);
     } catch (err) {
-      console.error("Error fetching order bids:", err);
+      console.error("Error fetching confirmed orders:", err);
     }
   };
 
@@ -63,7 +62,6 @@ const BuyerDashboard = () => {
 
   const handleConfirmOrder = async (productId, lowestProvider, decision) => {
     setConfirmingOrder(productId);
-    confirmOrder(lowestProvider);
     let updateObject = {};
     updateObject["_id"] = productId;
     let sellerCode = Object.keys(lowestProvider)[0];
@@ -190,6 +188,29 @@ const BuyerDashboard = () => {
     });
   };
 
+  const renderOrderCard = (order) => {
+    return (
+      <motion.div
+        key={order._id}
+        className="relative p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-green-500 hover:shadow-sm hover:shadow-green-500"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+      >
+        <h3 className="text-2xl font-semibold mb-4">{order.categoryName}</h3>
+        <ProductDetails details={order.details} />
+        <div className="mt-4">
+          <p className="text-lg font-bold">Confirmed Order: </p>
+          <p>Provider: {order.finalProductName}</p>
+          <p>Price: {order.finalPrice}</p>
+        </div>
+        <div className="absolute top-4 right-4 text-green-500">
+          <AiOutlineCheckCircle size={30} />
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="min-h-screen w-full pt-32 pb-20 px-6 bg-gray-900 text-white bg-[radial-gradient(circle_900px_at_50%_600px,#6533ee78,transparent)]">
       <motion.h1
@@ -223,7 +244,8 @@ const BuyerDashboard = () => {
           <h2 className="text-3xl font-semibold mb-4">Confirmed Orders</h2>
           <div className="flex-1 overflow-y-auto">
             {confirm.length === 0 && <p>No confirmed orders.</p>}
-            {confirm.map((product) => renderOrderCard(product, true))}
+            {confirm.length > 0 &&
+              confirm.map((product) => renderOrderCard(product, true))}
           </div>
         </motion.div>
       </div>

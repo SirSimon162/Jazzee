@@ -4,27 +4,6 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "@/store/user-store";
 
-const mockData = {
-  products: [
-    { id: 1, name: "Product A", price: "$150", gigs: "50", concurrency: "10" },
-    { id: 2, name: "Product B", price: "$200", gigs: "70", concurrency: "15" },
-  ],
-  requestedOrders: [
-    {
-      id: 1,
-      name: "Product A",
-      quoteDetails: { initialPrice: "$150" },
-    },
-  ],
-  confirmedOrders: [
-    {
-      id: 2,
-      name: "Product B",
-      quoteDetails: { initialPrice: "$200", confirmedPrice: "$180" },
-    },
-  ],
-};
-
 const SellerDashboard = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [schemaData, setSchemaData] = useState([]);
@@ -36,7 +15,7 @@ const SellerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [openBids, setOpenBids] = useState([]);
   const [isProductListed, setIsProductListed] = useState(false);
-
+  const [confirm, setConfirm] = useState([]);
   const [id, setId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [productName, setProductName] = useState("");
@@ -97,10 +76,24 @@ const SellerDashboard = () => {
     }
   };
 
+  const getConfirmOrders = async () => {
+    try {
+      const response = await fetch("/api/seller/get-confirm-oders");
+      if (!response.ok) {
+        throw new Error("Failed to fetch confirm orders");
+      }
+      const data = await response.json();
+      setConfirm(data.result || []);
+    } catch (err) {
+      console.error("Error fetching confirmed orders:", err);
+    }
+  };
+
   useEffect(() => {
     fetchSchema();
     fetchProducts();
     getOpenBids();
+    getConfirmOrders();
   }, []);
 
   const handleAddProduct = () => {
@@ -306,21 +299,23 @@ const SellerDashboard = () => {
       <section>
         <h2 className="text-3xl font-semibold mb-4">Confirmed Orders</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {mockData.confirmedOrders.length === 0 && <p>No confirmed orders.</p>}
-          {mockData.confirmedOrders.map((product) => (
+          {confirm.length === 0 && <p>No Confirmed Orders.</p>}
+          {confirm.map((order) => (
             <motion.div
-              key={product.id}
+              key={order._id}
               className="p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
             >
-              <h3 className="text-2xl font-semibold mb-4">{product.name}</h3>
-              <p className="text-lg font-semibold text-yellow-400">
-                Original Price: {product.quoteDetails.initialPrice}
+              <h3 className="text-2xl font-semibold mb-4">
+                {order.categoryName}
+              </h3>
+              <p className="text-lg text-gray-400 mb-2">
+                <strong>Price:</strong> {order.price}
               </p>
-              <p className="text-lg font-semibold text-green-400 mt-2">
-                Confirmed Price: {product.quoteDetails.confirmedPrice}
+              <p className="text-lg text-gray-400 mb-2">
+                <strong>Confirmed By:</strong> {order.sellerCustomName}
               </p>
             </motion.div>
           ))}
@@ -380,7 +375,10 @@ const SellerDashboard = () => {
                         type={field.valueType === "Number" ? "number" : "text"}
                         placeholder={field.placeholder + field.prefix}
                         onChange={(e) =>
-                          handleFieldChange(field.keyName, e.target.value + field.prefix)
+                          handleFieldChange(
+                            field.keyName,
+                            e.target.value + field.prefix
+                          )
                         }
                         className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full"
                       />
