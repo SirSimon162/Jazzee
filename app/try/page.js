@@ -79,7 +79,7 @@ export default function Page() {
     setError(null);
 
     try {
-      const response = await fetch("/api/seller/get-openbids");
+      const response = await fetch("/api/buyer/get-orders");
       if (!response.ok) {
         throw new Error("Failed to fetch open bids");
       }
