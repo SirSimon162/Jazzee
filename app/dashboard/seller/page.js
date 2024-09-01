@@ -94,6 +94,7 @@ const SellerDashboard = () => {
   };
 
   const handleConfirmOrder = (productId) => {
+    setModalOpen(true);
     setConfirmingOrder(productId);
   };
 
@@ -153,6 +154,32 @@ const SellerDashboard = () => {
     }));
   };
 
+  const ProductDetails = ({ details }) => {
+    const notDisplayedKeys = [
+      "_id",
+      "sellerCustomName",
+      "categorySlug",
+      "categoryName",
+      "productName",
+      "sellerCode",
+    ];
+
+    return (
+      <div>
+        {Object.entries(details).map(([key, value]) => {
+          if (notDisplayedKeys.some((item) => item === key)) {
+            return null;
+          }
+          return (
+            <p key={key} className="text-lg text-gray-400 mb-2">
+              <strong>{key}:</strong> {value}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen w-full pt-32 pb-20 px-6 bg-gray-900 text-white bg-[radial-gradient(circle_900px_at_50%_600px,#6533ee78,transparent)]">
       <motion.h1
@@ -165,6 +192,7 @@ const SellerDashboard = () => {
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Your Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.length === 0 && <p>No requested quotes.</p>}
           {products.map((product) => (
             <motion.div
               key={product._id}
@@ -173,24 +201,13 @@ const SellerDashboard = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
             >
-              <h3 className="text-2xl font-semibold mb-2">
+              <h3 className="text-2xl font-semibold mb-4">
                 {product.productName}
               </h3>
-              <p>
-                <strong>Seller Name:</strong> {product.sellerCustomName}
-              </p>
-              <p>
-                <strong>Category:</strong> {product.categoryName}
-              </p>
-              <p>
-                <strong>Issue Tracking:</strong> {product["Issue Tracking"]}
-              </p>
-              <p>
-                <strong>CI/CD Option:</strong> {product["CI/CD Option"]}
-              </p>
-              <p>
-                <strong>Pricing:</strong> {product.Pricing}
-              </p>
+              <h5 className="text-lg font-semibold text-gray-200 mb-1">
+                {product.categoryName}
+              </h5>
+              <ProductDetails details={product} />
             </motion.div>
           ))}
           <motion.button
@@ -228,13 +245,7 @@ const SellerDashboard = () => {
               <p className="text-lg font-semibold text-yellow-400">
                 Entered Price: {product.details.Price}
               </p>
-              <p className="text-lg text-gray-400 mb-2">
-                Issue Tracking: {product.details["Issue Tracking"]}
-              </p>
-              <p className="text-lg text-gray-400 mb-2">
-                CI/CD Pipeline: {product.details["CI/CD Pipeline"]}
-              </p>
-
+              <ProductDetails details={product.details} />
               <motion.button
                 onClick={() => handleConfirmOrder(product.id)}
                 className="p-2 mt-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
