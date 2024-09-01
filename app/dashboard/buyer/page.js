@@ -36,6 +36,7 @@ const BuyerDashboard = () => {
   useEffect(() => {
     getOrdersBids();
   }, []);
+
   useEffect(() => {
     console.log("Requested Orders:", requestedOrders);
   }, [requestedOrders]);
@@ -44,14 +45,14 @@ const BuyerDashboard = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otp, setOtp] = useState("");
 
-  const handleConfirmOrder = (productId) => {
+  const handleConfirmOrder = (productId, lowestProvider) => {
     setConfirmingOrder(productId);
+    confirmOrder(lowestProvider); // Automatically confirm the lowest bid
   };
 
   const handleVerifyOtp = () => {
     if (otp === "123456") {
       setOtpVerified(true);
-      confirmOrder(confirmingOrder);
       setTimeout(() => {
         setConfirmingOrder(null);
         setOtpVerified(false);
@@ -87,30 +88,58 @@ const BuyerDashboard = () => {
   };
 
   const renderOrderBids = () => {
-    return orderBids.map((order) => (
-      <motion.div
-        key={order._id}
-        className="p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.8 }}
-      >
-        <h3 className="text-2xl font-semibold mb-4">{order.categoryName}</h3>
-        <ProductDetails details={order.details} />
-        <div>
-          {order.bids.map((bid, index) => {
-            const providerId = Object.keys(bid)[0];
-            const providerDetails = bid[providerId];
-            return (
-              <div key={index} className="mb-2">
-                <p>Provider: {providerDetails.productName}</p>
-                <p>Price: {providerDetails.price}</p>
-              </div>
-            );
-          })}
-        </div>
-      </motion.div>
-    ));
+    return orderBids.map((order) => {
+      const lowestBid = order.bids.reduce(
+        (lowest, current) => {
+          const currentPrice = parseFloat(Object.values(current)[0].price);
+          return currentPrice < lowest.price
+            ? { price: currentPrice, provider: current }
+            : lowest;
+        },
+        { price: Infinity, provider: null }
+      );
+
+      return (
+        <motion.div
+          key={order._id}
+          className="relative p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+        >
+          <h3 className="text-2xl font-semibold mb-4">{order.categoryName}</h3>
+          <ProductDetails details={order.details} />
+          <div>
+            {order.bids.map((bid, index) => {
+              const providerId = Object.keys(bid)[0];
+              const providerDetails = bid[providerId];
+              return (
+                <div key={index} className="mb-2">
+                  <p>Provider: {providerDetails.productName}</p>
+                  <p>Price: {providerDetails.price}</p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4">
+            <p className="text-lg font-bold">
+              Lowest Price: ${lowestBid.price} USD
+            </p>
+          </div>
+          <div className="flex items-start justify-start gap-2 mt-4">
+            <button
+              className="py-2 px-4 text-white bg-blue-500 hover:bg-blue-700 rounded-md"
+              onClick={() => handleConfirmOrder(order._id, lowestBid.provider)}
+            >
+              Accept Lowest Bid
+            </button>
+            <button className="py-2 px-4 text-white bg-red-500 hover:bg-red-700 rounded-md">
+              Reject
+            </button>
+          </div>
+        </motion.div>
+      );
+    });
   };
 
   return (
