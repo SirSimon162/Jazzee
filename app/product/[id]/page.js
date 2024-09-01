@@ -195,12 +195,12 @@ const Page = () => {
             className="p-6 bg-[#0e0e10] rounded-lg shadow-lg flex flex-col justify-between border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
           >
             <h2 className="text-2xl font-semibold text-white mb-4">
-              {provider.name}
+              {provider.productName}
             </h2>
-            <p className="text-gray-300">{provider.price}</p>
-            <p className="text-gray-400">Features: {provider.features}</p>
-            <p className="text-gray-400">Storage: {provider.gigs}</p>
-            <p className="text-gray-400">Concurrency: {provider.concurrency}</p>
+            <p className="text-gray-300">{provider.sellerCustomName}</p>
+            <p className="text-gray-400">{provider["Minimum Users"]}</p>
+            <p className="text-gray-400">{provider["Meeting Options"]}</p>
+            <p className="text-gray-400">{provider.Pricing}</p>
           </motion.div>
         ))}
       </div>
