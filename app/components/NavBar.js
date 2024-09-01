@@ -10,7 +10,10 @@ function NavBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const { setSession, clearSession } = useAuthStore();
-
+  const { userInfo } = useAuthStore((state) => ({
+    userInfo: state.userInfo,
+  }));
+  console.log(userInfo);
   useEffect(() => {
     if (status === "authenticated" && session) {
       setSession(session);
@@ -59,12 +62,32 @@ function NavBar() {
           >
             Home
           </Link>
-          <Link href="#about" className="text-gray-900 hover:text-blue-700">
-            About
-          </Link>
-          <Link href="#faq" className="text-gray-900 hover:text-blue-700">
-            FAQ
-          </Link>
+          {status === "authenticated" && (
+            <Link
+              href="/marketplace"
+              className="text-gray-900 hover:text-blue-700"
+            >
+              Marketplace
+            </Link>
+          )}
+          {status === "authenticated" && session && (
+            <Link
+              href={`/dashboard/${userInfo.role}`}
+              className="text-gray-900 hover:text-blue-700"
+            >
+              Dashboard
+            </Link>
+          )}
+          {status === "unauthenticated" && !session && (
+            <Link href="/#about" className="text-gray-900 hover:text-blue-700">
+              About
+            </Link>
+          )}
+          {status === "unauthenticated" && !session && (
+            <Link href="/#faq" className="text-gray-900 hover:text-blue-700">
+              FAQ
+            </Link>
+          )}
           <AuthButton className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-semibold" />
         </div>
         <div className="md:hidden block">
@@ -94,20 +117,35 @@ function NavBar() {
             >
               Home
             </Link>
-            <Link
-              href="#about"
-              className="block text-gray-900 hover:text-blue-700"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              href="#faq"
-              className="block text-gray-900 hover:text-blue-700"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              FAQs
-            </Link>
+            {status === "authenticated" && (
+              <Link
+                href="/marketplace"
+                className="text-gray-900 hover:text-blue-700"
+              >
+                Marketplace
+              </Link>
+            )}
+            {status === "authenticated" && session && (
+              <Link
+                href={`/dashboard/${userInfo.role}`}
+                className="text-gray-900 hover:text-blue-700"
+              >
+                Dashboard
+              </Link>
+            )}
+            {status === "unauthenticated" && !session && (
+              <Link
+                href="/#about"
+                className="text-gray-900 hover:text-blue-700"
+              >
+                About
+              </Link>
+            )}
+            {status === "unauthenticated" && !session && (
+              <Link href="/#faq" className="text-gray-900 hover:text-blue-700">
+                FAQ
+              </Link>
+            )}
             <AuthButton className="px-6 py-2 bg-blue-600 hover:bg-blue-700 transition duration-200 rounded-full text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] font-bold" />
           </div>
         </motion.div>
