@@ -1,12 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import useProductStore from "@/store/product-store";
 
 const Page = () => {
   const { id } = useParams();
+  const router = useRouter();
   const [quoteDetails, setQuoteDetails] = useState({
     price: "",
     gigs: "",
@@ -24,7 +25,7 @@ const Page = () => {
 
   const requiredKeys = ["req1", "req2", "req3"];
 
-  const [quoteStatus, setQuoteStatus] = useState('null');
+  const [quoteStatus, setQuoteStatus] = useState(false);
 
   async function getProviders(id) {
     const productsRes = await fetch("/api/buyer/get-products");
@@ -59,25 +60,24 @@ const Page = () => {
     console.log(requiredSchema);
   }
 
-  async function requestQuote(payload){
-    setQuoteStatus('loading');
-    let callPayload = {}
+  async function requestQuote(payload) {
+    setQuoteStatus(true);
+    let callPayload = {};
     let start = 1;
     Object.entries(payload).map(([key, value]) => {
-      if(key != "Price"){
-        if(start == 1){
-          callPayload['key1'] = {key: key, value: value}
-          start++
+      if (key != "Price") {
+        if (start == 1) {
+          callPayload["key1"] = { key: key, value: value };
+          start++;
         }
-        if(start == 2){
-          callPayload['key2'] = {key: key, value: value};
+        if (start == 2) {
+          callPayload["key2"] = { key: key, value: value };
         }
       }
     });
-    callPayload['price'] = payload.Price;
-    callPayload['categoryName'] = schema.categoryName;
+    callPayload["price"] = payload.Price;
+    callPayload["categoryName"] = schema.categoryName;
     console.log(callPayload);
-    
 
     const response = await fetch("/api/buyer/request-quote", {
       method: "POST",
@@ -87,8 +87,9 @@ const Page = () => {
       body: JSON.stringify(callPayload),
     });
 
-    if(response.ok){
-      setQuoteStatus('successful');
+    if (response.ok) {
+      setQuoteStatus("successful");
+      setOrderPlaced(true);
     }
   }
 
@@ -97,12 +98,34 @@ const Page = () => {
     getQuoteSchema(id);
   }, [id]);
 
-  const handlePlaceOrder = () => {
-    useProductStore.getState().setRequestedOrder(product, quoteDetails);
-    setOrderPlaced(true);
-    setTimeout(() => {
-      setOrderPlaced(false);
-    }, 3000);
+  const handleCloseModal = () => {
+    router.push("/marketplace");
+  };
+
+  const ProductDetails = ({ details }) => {
+    const notDisplayedKeys = [
+      "_id",
+      "sellerCustomName",
+      "categorySlug",
+      "categoryName",
+      "productName",
+      "sellerCode",
+    ];
+
+    return (
+      <div>
+        {Object.entries(details).map(([key, value]) => {
+          if (notDisplayedKeys.some((item) => item === key)) {
+            return null;
+          }
+          return (
+            <p key={key} className="text-lg text-gray-400 mb-2">
+              <strong>{key}:</strong> {value}
+            </p>
+          );
+        })}
+      </div>
+    );
   };
 
   if (!products) {
@@ -121,7 +144,7 @@ const Page = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-2xl md:text-4xl font-bold text-white mb-0 capitalize"
       >
-        {schema['categoryName']}
+        {schema["categoryName"]}
       </motion.h1>
       <motion.p
         initial={{ y: -100, opacity: 0 }}
@@ -129,7 +152,7 @@ const Page = () => {
         transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
         className="text-gray-400 mb-6"
       >
-        {schema['categorySlug']}
+        {schema["categorySlug"]}
       </motion.p>
 
       <motion.div
@@ -141,15 +164,15 @@ const Page = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const formData = new FormData(e.target); // Get form data
-            const data = {}; 
-        
+            const formData = new FormData(e.target);
+            const data = {};
+
             formData.forEach((value, key) => {
-              data[key] = value;             });
-        
-            console.log({ form: data }); 
+              data[key] = value;
+            });
+
+            console.log({ form: data });
             requestQuote(data);
-            // handlePlaceOrder();
           }}
           className="bg-[#0e0e10] p-6 rounded-lg shadow-lg w-full"
         >
@@ -162,10 +185,12 @@ const Page = () => {
               if (requiredKeys.includes(key)) {
                 return (
                   <div key={key} className="w-full">
-                    <label className="block text-sm mb-2 w-full text-gray-300">{field}</label>
+                    <label className="block text-sm mb-2 w-full text-gray-300">
+                      {field}
+                    </label>
                     <input
                       type="text"
-                      name = {field}
+                      name={field}
                       placeholder={field}
                       className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full text-white"
                     />
@@ -177,9 +202,7 @@ const Page = () => {
             })}
           </div>
           <motion.button
-            // type="submit"
             whileTap={{ scale: 0.95 }}
-
             className="mt-4 p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full"
           >
             Request Quote
@@ -188,19 +211,21 @@ const Page = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
-        {products.map((provider, index) => (
+        {products.map((product) => (
           <motion.div
-            key={index}
-            whileHover={{ scale: 1.02 }}
-            className="p-6 bg-[#0e0e10] rounded-lg shadow-lg flex flex-col justify-between border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
+            key={product._id}
+            className="p-6 bg-gray-800 rounded-lg shadow-lg mb-4 border border-[#0e0e10] hover:border-blue-500 hover:shadow-sm hover:shadow-blue-500"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
           >
-            <h2 className="text-2xl font-semibold text-white mb-4">
-              {provider.productName}
-            </h2>
-            <p className="text-gray-300">{provider.sellerCustomName}</p>
-            <p className="text-gray-400">{provider["Minimum Users"]}</p>
-            <p className="text-gray-400">{provider["Meeting Options"]}</p>
-            <p className="text-gray-400">{provider.Pricing}</p>
+            <h3 className="text-2xl font-semibold mb-4 text-white">
+              {product.productName}
+            </h3>
+            <h5 className="text-lg font-semibold text-gray-200 mb-1">
+              {product.categoryName}
+            </h5>
+            <ProductDetails details={product} />
           </motion.div>
         ))}
       </div>
@@ -225,6 +250,34 @@ const Page = () => {
                 <br />
                 We will notify you over email.
               </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {orderPlaced && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg flex flex-col items-center"
+            >
+              <AiOutlineCheckCircle size={60} className="text-blue-500" />
+              <p className="mt-4 text-xl font-semibold text-center">
+                We are requesting quotations on your requirements.
+              </p>
+              <button
+                onClick={handleCloseModal}
+                className="mt-4 p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Close
+              </button>
             </motion.div>
           </motion.div>
         )}
