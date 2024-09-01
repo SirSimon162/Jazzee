@@ -29,10 +29,13 @@ export async function POST(req) {
         return new Response(JSON.stringify({message: "Category Name, key1, key2, price are required."}), {status: 400});
     }
 
-    // let customerEmail = session.user.email;
+
+    let customerEmail = session.user.email;
+    let customerCode = hash(customerEmail);
 
     let orderObject = {
         categoryName: categoryName,
+        customerCode,
         details: {
             [key1['key']]: key1['value'],
             [key2['key']]: key2['value'],

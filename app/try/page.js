@@ -6,7 +6,7 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [postResponse, setPostResponse] = useState(null);
   const [postError, setPostError] = useState(null);
-  const [productCount, setProductCount] = useState(null); // State for product count
+  const [openBids, setOpenBids] = useState(null); // State for storing open bids
 
   const listProduct = async () => {
     setLoading(true);
@@ -20,17 +20,17 @@ export default function Page() {
         productName: "Bitbucket",
         "Issue Tracking": "JIRA Integrated",
         "CI/CD Option": "Jenkins, CircleCI",
-        "Pricing": "USD 25/user/month"
-      }
+        "Pricing": "USD 25/user/month",
+      },
     };
 
     try {
       const response = await fetch("/api/seller/list-product", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         throw new Error("Failed to list product");
@@ -44,19 +44,47 @@ export default function Page() {
     }
   };
 
-  const fetchProducts = async () => {
+  const placeBid = async () => {
+    setLoading(true);
+    setError(null);
+
+    const randomData = {
+      _id: "66d4360df196191e96b2842b", // Replace with actual order ID
+      price: Math.floor(Math.random() * 1000) + 100, // Random price between 100 and 1100
+      productName: "Random Product",
+    };
+
+    try {
+      const response = await fetch("/api/seller/place-bid", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(randomData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to place bid");
+      }
+      const data = await response.json();
+      setPostResponse(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOpenBids = async () => {
     setLoading(true);
     setError(null);
 
     try {
       const response = await fetch("/api/seller/get-openbids");
       if (!response.ok) {
-        throw new Error("Failed to fetch products");
+        throw new Error("Failed to fetch open bids");
       }
       const data = await response.json();
-      const productCount = data.result ? data.result.length : 0; // Adjusted based on your data structure
-      setProductCount(productCount);
-      console.log(`Number of products found: ${productCount}`);
+      setOpenBids(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,18 +111,25 @@ export default function Page() {
       )}
 
       <button
-        onClick={fetchProducts}
+        onClick={placeBid}
         disabled={loading}
         className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed mb-6"
       >
-        {loading ? "Loading..." : "Get Products"}
+        {loading ? "Loading..." : "Place Bid"}
       </button>
       {error && <p className="text-red-500 mb-6">Error: {error}</p>}
 
-      {productCount !== null && (
-        <p className="text-green-500 mb-6">
-          Number of products found: {productCount}
-        </p>
+      <button
+        onClick={fetchOpenBids}
+        disabled={loading}
+        className="px-6 py-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed mb-6"
+      >
+        {loading ? "Loading..." : "Get Open Bids"}
+      </button>
+      {openBids && (
+        <pre className="p-4 bg-white rounded-md shadow-md whitespace-pre-wrap">
+          {JSON.stringify(openBids, null, 2)}
+        </pre>
       )}
     </div>
   );

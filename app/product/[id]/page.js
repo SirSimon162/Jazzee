@@ -15,6 +15,8 @@ const Page = () => {
     selectedProviders: [],
   });
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [providers, setProviders] = useState([]);
+  const [schema, setSchema] = useState({});
 
   const {
     products,
@@ -26,9 +28,41 @@ const Page = () => {
     selectedProduct: state.selectedProduct,
   }));
 
+  async function getProviders(id) {
+    const productsRes = await fetch("/api/buyer/get-products");
+    const productData = await productsRes.json();
+    const productArray = productData.result;
+    let providersList = [];
+    for (let i = 0; i < productArray.length; i++) {
+      let currentProduct = productArray[i];
+      if (currentProduct["categorySlug"] == id) {
+        providersList.push(currentProduct);
+      }
+    }
+    console.log(providersList);
+    console.log(providersList.length);
+  }
+  async function getQuoteSchema(id) {
+    const productsRes = await fetch("/api/buyer/get-quote-schema");
+    const quoteSchema = await productsRes.json();
+   
+    const schemaArray = quoteSchema.result;
+    let requiredSchema = {};
+    
+    for (let i = 0; i < schemaArray.length; i++) {
+      let currentSchema = schemaArray[i];
+      if( currentSchema.categorySlug == id){
+        requiredSchema = currentSchema;
+      }
+    }
+    console.log(requiredSchema);
+  }
+
   useEffect(() => {
     const selected = products.find((product) => product.id === id);
     setSelectedProduct(selected);
+    getProviders(id);
+    getQuoteSchema(id);
   }, [id, products, setSelectedProduct]);
 
   const handlePlaceOrder = () => {
