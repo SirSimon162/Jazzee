@@ -37,6 +37,21 @@ const SellerDashboard = () => {
   const [openBids, setOpenBids] = useState([]);
   const [isProductListed, setIsProductListed] = useState(false);
 
+  const [id, setId] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [productName, setProductName] = useState("");
+
+  useEffect(() => {
+  for (let i = 0; i < products.length; i++) {
+    let currentProduct = products[i];
+    if (currentProduct['categoryName'] === categoryName) {
+      setProductName(currentProduct['productName']);
+      break; // Exit the loop once a match is found
+    }
+  }
+}, [categoryName, products]);
+  
+
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
   }));
@@ -82,6 +97,8 @@ const SellerDashboard = () => {
       console.error("Error fetching products:", err);
     }
   };
+
+
 
   useEffect(() => {
     fetchSchema();
@@ -160,9 +177,9 @@ const SellerDashboard = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          _id: confirmingOrder._id,
+          _id: id,
           price: priceInput,
-          productName: confirmingOrder.productName,
+          productName: productName,
         }),
       });
 
@@ -181,6 +198,8 @@ const SellerDashboard = () => {
 
   const ProductDetails = ({ details }) => {
     const notDisplayedKeys = [
+      "Price",
+      "price",
       "_id",
       "sellerCustomName",
       "categorySlug",
@@ -249,7 +268,7 @@ const SellerDashboard = () => {
           className="p-3 mt-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
           onClick={() => alert("Navigate to Analytics and Insights page")}
         >
-          Go to Analytics and Insights
+          Go to AI Analytics and Insights
         </motion.button>
       </section>
       <section className="mb-12">
@@ -268,15 +287,19 @@ const SellerDashboard = () => {
                 {product.categoryName}
               </h3>
               <p className="text-lg font-semibold text-yellow-400">
-                Entered Price: {product.details.Price}
+                Requested Price: {product.details.price}
               </p>
               <ProductDetails details={product.details} />
               <motion.button
-                onClick={() => handleConfirmOrder()}
+                onClick={() => {
+                  handleConfirmOrder();
+                  setId(product._id);
+                  setCategoryName(product.categoryName);
+                }}
                 className="p-2 mt-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 whileHover={{ scale: 1.1 }}
               >
-                Enter Price for Buyer
+                Make a Bid
               </motion.button>
             </motion.div>
           ))}
