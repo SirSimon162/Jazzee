@@ -55,7 +55,7 @@ export default function Page() {
     };
 
     try {
-      const response = await fetch("/api/seller/place-bid", {
+      const response = await fetch("/api/buyer/update-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
