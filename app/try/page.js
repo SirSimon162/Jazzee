@@ -49,7 +49,7 @@ export default function Page() {
     setError(null);
 
     try {
-      const response = await fetch("/api/user-details");
+      const response = await fetch("/api/seller/get-master-schema");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }

@@ -14,13 +14,13 @@ if (!global._mongoClientPromise) {
 clientPromise = global._mongoClientPromise;
 
 export async function POST(req) {
-//   const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
 
-//   if (!session) {
-//     return new Response(JSON.stringify({ message: "You must be logged in." }), {
-//       status: 401,
-//     });
-//   }
+  if (!session) {
+    return new Response(JSON.stringify({ message: "You must be logged in." }), {
+      status: 401,
+    });
+  }
 
   try {
     let {categoryName, key1, key2, price } = await req.json();
