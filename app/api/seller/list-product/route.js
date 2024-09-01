@@ -61,13 +61,10 @@ export async function POST(req) {
     );
   } catch (error) {
     console.error("Error inserting product:", error);
-
-    // Return an error response if something goes wrong
     return new Response(JSON.stringify({ message: "Failed to add product" }), {
       status: 500,
     });
   } finally {
-    // Ensure the client is closed after the operation
     await client.close();
   }
 }
