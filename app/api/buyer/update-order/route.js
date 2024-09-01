@@ -50,7 +50,7 @@ export async function POST(req) {
           orderStatus: "successful",
           sellerCode: sellerCode,
           finalPrice: price,
-          finalProductName: productName
+          finalProductName: productName,
         },
 
         $push: {
@@ -89,10 +89,9 @@ export async function POST(req) {
   }
 }
 
-
 // POST Payload
 // {
-//     _id: "66d4360df196191e96b2842b", 
+//     _id: "66d4360df196191e96b2842b",
 //     price: "USD 1000"
 //     productName: "Random Product",
 //   };
