@@ -10,7 +10,7 @@
 
 ## Video Link
 
-Watch the demonstration of the Jazzee Marketplace [here](https://youtube.com).
+Watch the demonstration of the Jazzee Marketplace [here](https://youtu.be/WynQ9Ckj8o8).
 
 ## Features
 

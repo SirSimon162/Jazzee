@@ -58,7 +58,7 @@ export default function BuyerAuthPage() {
       <div className="m-auto max-w-md w-full px-8 py-6 bg-white bg-opacity-10 backdrop-blur-xl rounded-lg shadow-lg">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">
-            {session ? "Welcome Back!" : "START BIDDING"}
+            {session ? "Welcome Back!" : "Get Best Quotes!"}
           </h1>
           <p className="text-gray-200 mb-4">
             {session
