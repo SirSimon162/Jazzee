@@ -42,15 +42,14 @@ const SellerDashboard = () => {
   const [productName, setProductName] = useState("");
 
   useEffect(() => {
-  for (let i = 0; i < products.length; i++) {
-    let currentProduct = products[i];
-    if (currentProduct['categoryName'] === categoryName) {
-      setProductName(currentProduct['productName']);
-      break; // Exit the loop once a match is found
+    for (let i = 0; i < products.length; i++) {
+      let currentProduct = products[i];
+      if (currentProduct["categoryName"] === categoryName) {
+        setProductName(currentProduct["productName"]);
+        break; // Exit the loop once a match is found
+      }
     }
-  }
-}, [categoryName, products]);
-  
+  }, [categoryName, products]);
 
   const { userInfo } = useAuthStore((state) => ({
     userInfo: state.userInfo,
@@ -97,8 +96,6 @@ const SellerDashboard = () => {
       console.error("Error fetching products:", err);
     }
   };
-
-
 
   useEffect(() => {
     fetchSchema();
@@ -381,9 +378,9 @@ const SellerDashboard = () => {
                       </label>
                       <input
                         type={field.valueType === "Number" ? "number" : "text"}
-                        placeholder={field.placeholder}
+                        placeholder={field.placeholder + field.prefix}
                         onChange={(e) =>
-                          handleFieldChange(field.keyName, e.target.value)
+                          handleFieldChange(field.keyName, e.target.value + field.prefix)
                         }
                         className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none w-full"
                       />
