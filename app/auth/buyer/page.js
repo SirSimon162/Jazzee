@@ -6,21 +6,46 @@ import useAuthStore from "../../../store/user-store";
 import Link from "next/link";
 
 export default function BuyerAuthPage() {
-  const { session, setSession, clearSession, saveUserInfo } = useAuthStore();
-  const { data: nextAuthSession } = useSession();
+  const { setSession, clearSession, saveUserInfo } = useAuthStore();
+  const { data: session } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (nextAuthSession) {
-      setSession(nextAuthSession);
-      saveUserInfo(nextAuthSession.user.name, "buyer");
-  
-      router.push("/dashboard/buyer");
-    }
-  }, [nextAuthSession, setSession, saveUserInfo, router]);
+    const handleAuthentication = async () => {
+      if (session) {
+        setSession(session);
+        try {
+          const response = await fetch("/api/user-login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: session.user.email,
+              name: session.user.name,
+              role: "buyer",
+            }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+
+          if (result.code === "cname") {
+            router.push("/cname");
+          } else {
+            router.push("/dashboard/buyer");
+          }
+        } catch (error) {
+          console.error("Error during authentication:", error);
+        }
+      }
+    };
+
+    handleAuthentication();
+  }, [session, setSession, saveUserInfo, router]);
 
   const handleSignIn = () => {
-    signIn("google", { callbackUrl: "/" });
+    signIn("google");
   };
 
   const handleSignOut = () => {
@@ -69,7 +94,10 @@ export default function BuyerAuthPage() {
 
           <div className="mt-4 text-sm text-gray-200">
             Want to sign in as a Seller?{" "}
-            <Link href="/auth/seller" className="hover:underline text-blue-200 underline">
+            <Link
+              href="/auth/seller"
+              className="hover:underline text-blue-200 underline"
+            >
               Sign in here
             </Link>
           </div>

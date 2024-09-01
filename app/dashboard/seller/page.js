@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
+import useAuthStore from "@/store/user-store";
 
 const mockData = {
   products: [
@@ -26,15 +27,31 @@ const mockData = {
 
 const SellerDashboard = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    gigs: "",
-    concurrency: "",
-  });
+  const [schemaData, setSchemaData] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [formFields, setFormFields] = useState({});
+  const [newProduct, setNewProduct] = useState({});
   const [confirmingOrder, setConfirmingOrder] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
+
+  const fetchSchema = async () => {
+    try {
+      const response = await fetch("/api/seller/get-master-schema");
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+      const data = await response.json();
+      setSchemaData(data);
+      console.log(data);
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
+  useEffect(() => {
+    fetchSchema();
+  }, []);
 
   const handleAddProduct = () => {
     setShowAddProductModal(true);
@@ -57,6 +74,27 @@ const SellerDashboard = () => {
     setConfirmingOrder(null);
   };
 
+  const { userInfo } = useAuthStore((state) => ({
+    userInfo: state.userInfo,
+  }));
+
+  const handleCategoryChange = (event) => {
+    const categorySlug = event.target.value;
+    setSelectedCategory(categorySlug);
+
+    const selectedSchema = schemaData.find(
+      (schema) => schema.categorySlug === categorySlug
+    );
+    setFormFields(selectedSchema?.required || {});
+  };
+
+  const handleFieldChange = (key, value) => {
+    setNewProduct((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   return (
     <div className="min-h-screen w-full pt-32 pb-20 px-6 bg-gray-900 text-white bg-[radial-gradient(circle_900px_at_50%_600px,#6533ee78,transparent)]">
       <motion.h1
@@ -64,11 +102,11 @@ const SellerDashboard = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Welcome, Seller!
+        Your Organization: {userInfo.name}
       </motion.h1>
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Your Products</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mockData.products.map((product) => (
             <motion.div
               key={product.id}
@@ -166,45 +204,35 @@ const SellerDashboard = () => {
               className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg flex flex-col text-white"
             >
               <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
-              <input
-                type="text"
-                placeholder="Product Name"
-                value={newProduct.name}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, name: e.target.value })
-                }
+              <select
+                onChange={handleCategoryChange}
+                value={selectedCategory}
                 className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Price"
-                value={newProduct.price}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: e.target.value })
-                }
-                className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Gigs"
-                value={newProduct.gigs}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, gigs: e.target.value })
-                }
-                className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Concurrency"
-                value={newProduct.concurrency}
-                onChange={(e) =>
-                  setNewProduct({
-                    ...newProduct,
-                    concurrency: e.target.value,
-                  })
-                }
-                className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
-              />
+              >
+                <option value="">Select Product Type</option>
+                {schemaData.map((schema) => (
+                  <option
+                    key={schema._id}
+                    value={schema.categorySlug}
+                    className="bg-gray-900 text-white"
+                  >
+                    {schema.categoryName}
+                  </option>
+                ))}
+              </select>
+              {selectedCategory &&
+                Object.keys(formFields).map((key) => {
+                  const field = formFields[key];
+                  return (
+                    <input
+                      key={key}
+                      type={field.valueType === "Number" ? "number" : "text"}
+                      placeholder={field.placeholder}
+                      onChange={(e) => handleFieldChange(key, e.target.value)}
+                      className="p-2 mb-4 bg-transparent border-b-2 border-blue-500 focus:outline-none"
+                    />
+                  );
+                })}
               <div className="flex justify-end">
                 <motion.button
                   onClick={handleSaveNewProduct}

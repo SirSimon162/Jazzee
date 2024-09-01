@@ -6,13 +6,13 @@ const mongoUri = process.env.MONGO_CONNECTION_URI;
 const client = new MongoClient(mongoUri);
 
 export async function POST(req) {
-  // const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
 
-  // if (!session) {
-  //   return new Response(JSON.stringify({ message: "You must be logged in." }), {
-  //     status: 401,
-  //   });
-  // }
+  if (!session) {
+    return new Response(JSON.stringify({ message: "You must be logged in." }), {
+      status: 401,
+    });
+  }
   await client.connect();
 
   const dbName = "jazzee";

@@ -99,7 +99,7 @@ const BuyerDashboard = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Welcome, {userInfo.name}!
+        Your Organization: {userInfo.name}!
       </motion.h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
