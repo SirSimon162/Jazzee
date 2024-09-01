@@ -18,6 +18,15 @@ const Page = () => {
           },
         });
         const data = await response.json();
+        const groupedData = data.result.reduce((acc, item) => {
+          if (!acc[item.categoryName]) {
+            acc[item.categoryName] = [];
+          }
+          acc[item.categoryName].push(item);
+          return acc;
+        }, {});
+
+        console.log(groupedData);
 
         if (response.ok) {
           setProducts(data.result);
