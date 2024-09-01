@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import useProductStore from "@/store/product-store";
+import useAuthStore from "@/store/user-store";
 
 const Page = () => {
   const { id } = useParams();
@@ -18,6 +19,8 @@ const Page = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [products, setProducts] = useState([]);
   const [schema, setSchema] = useState({});
+
+  const session = useAuthStore.getState().session;
 
   const [value1, setValue1] = useState({});
   const [value2, setValue2] = useState({});
