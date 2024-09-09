@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "@/store/user-store";
+import { useSession } from "next-auth/react";
 
 const SellerDashboard = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
@@ -30,9 +31,25 @@ const SellerDashboard = () => {
     }
   }, [categoryName, products]);
 
-  const { userInfo } = useAuthStore((state) => ({
-    userInfo: state.userInfo,
-  }));
+  const { data: session, status } = useSession();
+  const [name, setName] = useState("");
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch("/api/user-details");
+        if (response.ok) {
+          const user = await response.json();
+          if (user.customName) {
+            setName(user.customName);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+  
+    fetchUserDetails();
+  }, [session]);
 
   const fetchSchema = async () => {
     try {
@@ -222,7 +239,7 @@ const SellerDashboard = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Your Organization: {userInfo.name}
+        Your Organization: {name}
       </motion.h1>
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Your Products</h2>

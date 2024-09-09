@@ -10,10 +10,25 @@ function NavBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const { setSession, clearSession } = useAuthStore();
-  const { userInfo } = useAuthStore((state) => ({
-    userInfo: state.userInfo,
-  }));
-  console.log(userInfo);
+  const [role, setRole]=useState("");
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch("/api/user-details");
+        if (response.ok) {
+          const user = await response.json();
+          if (user.customName) {
+            setRole(user.role);
+            saveUserInfo(user.customName, userInfo.role);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+  
+    fetchUserDetails();
+  }, [session]);
   useEffect(() => {
     if (status === "authenticated" && session) {
       setSession(session);
@@ -26,6 +41,7 @@ function NavBar() {
     await signOut({ redirect: false });
     clearSession();
   };
+  
 
   const AuthButton = ({ className }) =>
     status === "authenticated" ? (
@@ -72,7 +88,7 @@ function NavBar() {
           )}
           {status === "authenticated" && session && (
             <Link
-              href={`/dashboard/${userInfo.role}`}
+              href={`/dashboard/${role}`}
               className="text-gray-900 hover:text-blue-700"
             >
               Dashboard
@@ -127,7 +143,7 @@ function NavBar() {
             )}
             {status === "authenticated" && session && (
               <Link
-                href={`/dashboard/${userInfo.role}`}
+                href={`/dashboard/${role}`}
                 className="text-gray-900 hover:text-blue-700"
               >
                 Dashboard

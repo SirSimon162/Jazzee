@@ -4,14 +4,31 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import useProductStore from "@/store/product-store";
 import useAuthStore from "@/store/user-store";
+import { useSession } from "next-auth/react";
 
 const BuyerDashboard = () => {
   const [orderBids, setOrderBids] = useState([]);
   const [confirm, setConfirm] = useState([]);
-  const { userInfo } = useAuthStore((state) => ({
-    userInfo: state.userInfo,
-  }));
 
+  const { data: session, status } = useSession();
+  const [name, setName] = useState("");
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch("/api/user-details");
+        if (response.ok) {
+          const user = await response.json();
+          if (user.customName) {
+            setName(user.customName);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+  
+    fetchUserDetails();
+  }, [session]);
   // const { requestedOrders, confirmedOrders, confirmOrder } = useProductStore(
   //   (state) => ({
   //     requestedOrders: state.requestedOrders,
@@ -218,7 +235,7 @@ const BuyerDashboard = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Your Organization: {userInfo.name}!
+        Your Organization: {name}!
       </motion.h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
